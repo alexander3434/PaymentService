@@ -15,9 +15,9 @@ bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
 
-build
-.gradle
-out
+build/
+.gradle/
+out/
 
 ### Mac OS ###
 .DS_Store
