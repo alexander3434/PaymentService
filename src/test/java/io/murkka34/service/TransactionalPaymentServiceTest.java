@@ -9,15 +9,17 @@ import static org.junit.Assert.assertEquals;
 public class TransactionalPaymentServiceTest {
 
     @Test
-    public void testTransactionalPaymentService() {
+    public void transactionalPaymentServiceTest() {
         TransactionalPaymentService service = new TransactionalPaymentService();
 
-        service.transfer("A", "B", new BigDecimal("100"));
-        assertEquals(BigDecimal.ZERO, service.balance("A"));
-        assertEquals(new BigDecimal("100"), service.balance("B"));
+        service.add("A", new BigDecimal("300"));
 
-        service.transfer("B", "A", new BigDecimal("50"));
-        assertEquals(new BigDecimal("50"), service.balance("A"));
-        assertEquals(new BigDecimal("50"), service.balance("B"));
+        service.transfer("A", "B", new BigDecimal("120"));
+        assertEquals(new BigDecimal("180"), service.balance("A"));
+        assertEquals(new BigDecimal("120"), service.balance("B"));
+
+        service.transfer("B", "A", new BigDecimal("30"));
+        assertEquals(new BigDecimal("210"), service.balance("A"));
+        assertEquals(new BigDecimal("90"), service.balance("B"));
     }
 }

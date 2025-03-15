@@ -16,7 +16,7 @@ public class TransactionalPaymentService implements PaymentService {
             return false; //Корректна ли сумма
         }
 
-        try {
+        synchronized (accounts) {
             BigDecimal fromBalance = accounts.getOrDefault(fromAccountId, BigDecimal.ZERO);
             BigDecimal toBalance = accounts.getOrDefault(toAccountId, BigDecimal.ZERO);
 
@@ -24,13 +24,36 @@ public class TransactionalPaymentService implements PaymentService {
                 return false;
             }
 
-            // выполняется/не выполняется
-            accounts.put(fromAccountId, fromBalance.subtract(amount));
-            accounts.put(toAccountId, toBalance.add(amount));
+            //откат
+            BigDecimal originalFrom = fromBalance;
+            BigDecimal originalTo = toBalance;
+
+            try {
+                // Вычисляем новые балансы
+                BigDecimal newFrom = fromBalance.subtract(amount);
+                BigDecimal newTo = toBalance.add(amount);
+
+                //обновляем
+                accounts.put(fromAccountId, newFrom);
+                accounts.put(toAccountId, newTo);
+
+                return true;
+            } catch (Exception e) {
+                accounts.put(fromAccountId, originalFrom);
+                accounts.put(toAccountId, originalTo);
+
+                System.err.println("Ошибка при транзакции: " + e.getMessage());
+                return false;
+            }
+        }
+    }
+
+    @Override
+    public boolean add(String toAccountId, BigDecimal amount) {
+        synchronized (accounts) {
+            BigDecimal currentBalance = accounts.getOrDefault(toAccountId, BigDecimal.ZERO);
+            accounts.put(toAccountId, currentBalance.add(amount));
             return true;
-        } catch (Exception e) {
-            System.err.println("Ошибка при выполнении транзакции: " + e.getMessage());
-            return false;
         }
     }
 }

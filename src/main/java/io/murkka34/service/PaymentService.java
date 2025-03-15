@@ -16,4 +16,6 @@ public interface PaymentService {
      */
 
     boolean transfer(String fromAccountId, String toAccountId, BigDecimal amount);
+
+    boolean add(String toAccountId, BigDecimal amount);
 }

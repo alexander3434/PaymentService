@@ -22,7 +22,13 @@ public class SimplePaymentService implements PaymentService {
         }
 
         accounts.put(fromAccountId, fromBalance.subtract(amount));
-        accounts.put(toAccountId, accounts.getOrDefault(toAccountId, BigDecimal.ZERO).add(amount)); // Зачисление средств
+        accounts.put(toAccountId, accounts.getOrDefault(toAccountId, BigDecimal.ZERO).add(amount));
+        return true;
+    }
+
+    @Override
+    public boolean add(String toAccountId, BigDecimal amount) {
+        accounts.put(toAccountId, accounts.getOrDefault(toAccountId, BigDecimal.ZERO).add((amount)));
         return true;
     }
 }
