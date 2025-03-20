@@ -2,9 +2,11 @@ package io.murkka34.service;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 public class TransactionalPaymentService implements PaymentService {
     private final Map<String, BigDecimal> accounts = new HashMap<>();
+    private final Random random = new Random();
 
     @Override
     public BigDecimal balance(String accountId) {
@@ -35,6 +37,11 @@ public class TransactionalPaymentService implements PaymentService {
 
                 //обновляем
                 accounts.put(fromAccountId, newFrom);
+
+                if (changeError()){
+                    throw new RuntimeException("Попали в свою вероятность");
+                }
+
                 accounts.put(toAccountId, newTo);
 
                 return true;
@@ -55,5 +62,9 @@ public class TransactionalPaymentService implements PaymentService {
             accounts.put(toAccountId, currentBalance.add(amount));
             return true;
         }
+    }
+
+    private boolean changeError(){
+        return random.nextDouble() < 0.3;
     }
 }
