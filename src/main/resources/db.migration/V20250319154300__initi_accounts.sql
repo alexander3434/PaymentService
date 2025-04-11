@@ -20,3 +20,10 @@ CREATE TABLE IF NOT EXISTS accounts
     amount     NUMERIC NOT NULL,
     currency   TEXT    NOT NULL
 );
+
+INSERT INTO accounts (account_id, amount, currency)
+VALUES
+    ('Bot1', 500.00, 'Rub'),
+    ('Bot2', 100.00, 'Rub'),
+    ('Bot', 300.00, 'Rub')
+ON CONFLICT (account_id) DO NOTHING;

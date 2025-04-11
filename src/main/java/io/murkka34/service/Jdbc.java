@@ -1,24 +1,42 @@
 package io.murkka34.service;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import io.murkka34.model.Account;
+import io.murkka34.model.Payment;
+import io.murkka34.repo.PaymentRepo;
+
+import java.io.IOException;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.UUID;
 
 public class Jdbc {
-    public static void main(String[] args) throws SQLException, ClassNotFoundException {
+    public static void main(String[] args) throws SQLException, ClassNotFoundException, IOException {
         String url = "jdbc:postgresql://localhost:5438/postgres";
-        String name = "postgres";
+        String user = "postgres";
         String password = "12345";
 
+        try (Connection connection = DriverManager.getConnection(url, user, password)) {
+            PaymentRepo repo = new PaymentRepo(url, user, password);
+            repo.transfer(new BigDecimal("100.00"), "Bot1", "Bot2", connection);
+
+        } catch (Exception e) {
+            System.out.println("Ошибка при выполнении main: " + e.getMessage());
+        }
+
+        var repo = new PaymentRepo(url, user, password);
+        repo.runMigration();
+
+        var accountId = UUID.randomUUID().toString();
+        repo.createAccount(accountId);
+        repo.addMoneyToAccount(new BigDecimal("123.45"), accountId, null);
+
         Class.forName("org.postgresql.Driver");
-        try (Connection conn = DriverManager.getConnection(url, name, password)) {
+        try (Connection conn = DriverManager.getConnection(url, user, password)) {
             var statement = conn.createStatement();
-            statement.execute(Files.readString(Paths.get("/Users/murkka/Work/Service/src/main/resources/db.migration/V20250319154300__initi_accounts.sql")));
-            var rs = statement.executeQuery("SELECT  *" +
-                    "FROM payments");
+            var rs = statement.executeQuery("SELECT * FROM payments");
             var payments = new ArrayList<Payment>();
             while (rs.next()) {
                 var payment = new Payment();
@@ -36,7 +54,7 @@ public class Jdbc {
 
             var accounts = new ArrayList<>();
             while (rs.next()){
-                var account = new Accounts();
+                var account = new Account();
                 account.accountId = rs.getBigDecimal("account_id");
                 account.amount = rs.getBigDecimal("amount");
                 account.currency = rs.getString("currency");
