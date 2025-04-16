@@ -7,34 +7,27 @@ import io.murkka34.repo.PaymentRepo;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.UUID;
 
 public class Jdbc {
     public static void main(String[] args) throws SQLException, ClassNotFoundException, IOException {
-        String url = "jdbc:postgresql://localhost:5438/postgres";
-        String user = "postgres";
-        String password = "12345";
+        PaymentRepo repo = new PaymentRepo();
 
-        try (Connection connection = DriverManager.getConnection(url, user, password)) {
-            PaymentRepo repo = new PaymentRepo(url, user, password);
+        try (Connection connection = HikariCPDataSource.getConnection()) {
             repo.transfer(new BigDecimal("100.00"), "Bot1", "Bot2", connection);
-
         } catch (Exception e) {
             System.out.println("Ошибка при выполнении main: " + e.getMessage());
         }
 
-        var repo = new PaymentRepo(url, user, password);
         repo.runMigration();
 
         var accountId = UUID.randomUUID().toString();
         repo.createAccount(accountId);
         repo.addMoneyToAccount(new BigDecimal("123.45"), accountId, null);
 
-        Class.forName("org.postgresql.Driver");
-        try (Connection conn = DriverManager.getConnection(url, user, password)) {
+        try (Connection conn = HikariCPDataSource.getConnection()) {
             var statement = conn.createStatement();
             var rs = statement.executeQuery("SELECT * FROM payments");
             var payments = new ArrayList<Payment>();
