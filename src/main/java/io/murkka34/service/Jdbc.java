@@ -3,20 +3,29 @@ package io.murkka34.service;
 import io.murkka34.model.Account;
 import io.murkka34.model.Payment;
 import io.murkka34.repo.PaymentRepo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-import java.io.IOException;
+import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.UUID;
 
+@Service
 public class Jdbc {
-    public static void main(String[] args) throws SQLException, ClassNotFoundException, IOException {
-        PaymentRepo repo = new PaymentRepo();
 
+    private final PaymentRepo repo;
+
+    @Autowired
+    public Jdbc(PaymentRepo repo) {
+        this.repo = repo;
+    }
+
+    @PostConstruct
+    public void applyMigrations() throws Exception {
         try (Connection connection = HikariCPDataSource.getConnection()) {
-            repo.transfer(new BigDecimal("100.00"), "Bot1", "Bot2", connection);
+            repo.transfer(new BigDecimal("100.00"), "Bot1", "Bot2");
         } catch (Exception e) {
             System.out.println("Ошибка при выполнении main: " + e.getMessage());
         }
@@ -25,7 +34,7 @@ public class Jdbc {
 
         var accountId = UUID.randomUUID().toString();
         repo.createAccount(accountId);
-        repo.addMoneyToAccount(new BigDecimal("123.45"), accountId, null);
+        repo.addMoneyToAccount(new BigDecimal("123.45"), accountId);
 
         try (Connection conn = HikariCPDataSource.getConnection()) {
             var statement = conn.createStatement();
@@ -60,3 +69,13 @@ public class Jdbc {
         }
     }
 }
+
+/* @RestController
+public class CustomStatusController {
+    @GetMapping("/custom-status")
+    public ResponseEntity<String> customStatus() {
+        return ResponseEntity.status(213).body("Кастомный статус 213");
+    }
+}
+
+ */

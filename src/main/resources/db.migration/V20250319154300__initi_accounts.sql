@@ -11,8 +11,6 @@ CREATE TABLE IF NOT EXISTS payments
     extra         json
 );
 
-INSERT INTO payments (account_to, account_from, amount, status, failed_reason, created_at, updated_at, extra) VALUES
-('Bot', 'Bot2', '10', 'completed', '', '1742902576124', '1742902576124', '{}'::json);
 
 CREATE TABLE IF NOT EXISTS accounts
 (
@@ -21,9 +19,3 @@ CREATE TABLE IF NOT EXISTS accounts
     currency   TEXT    NOT NULL
 );
 
-INSERT INTO accounts (account_id, amount, currency)
-VALUES
-    ('Bot1', 500.00, 'Rub'),
-    ('Bot2', 100.00, 'Rub'),
-    ('Bot', 300.00, 'Rub')
-ON CONFLICT (account_id) DO NOTHING;

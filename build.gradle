@@ -8,5 +8,8 @@ repositories {
 dependencies {
     implementation 'org.postgresql:postgresql:42.7.2'
     implementation 'com.zaxxer:HikariCP:5.1.0'
-    testCompile 'junit:junit:4.12'
+    implementation 'org.springframework.boot:spring-boot-starter-web:2.1.1.RELEASE'
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc:2.1.1.RELEASE'
+
+    testImplementation 'junit:junit:4.13.1'
 }
